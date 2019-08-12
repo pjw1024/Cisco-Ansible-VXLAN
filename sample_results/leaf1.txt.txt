@@ -1,0 +1,481 @@
+
+mt-l1# ter len 0
+ter len 0
+mt-l1# show run
+show run
+
+!Command: show running-config
+!Running configuration last done at: Wed Aug  7 14:08:12 2019
+!Time: Wed Aug  7 14:09:07 2019
+
+version 9.2(3) Bios:version  
+hostname mt-l1
+vdc mt-l1 id 1
+  limit-resource vlan minimum 16 maximum 4094
+  limit-resource vrf minimum 2 maximum 4096
+  limit-resource port-channel minimum 0 maximum 511
+  limit-resource u4route-mem minimum 128 maximum 128
+  limit-resource u6route-mem minimum 96 maximum 96
+  limit-resource m4route-mem minimum 58 maximum 58
+  limit-resource m6route-mem minimum 8 maximum 8
+
+feature scp-server
+nv overlay evpn
+feature ospf
+feature bgp
+feature pim
+feature interface-vlan
+feature vn-segment-vlan-based
+feature nv overlay
+feature telemetry
+
+no password strength-check
+username admin password 5 $5$UZrUxqCq$KTYQYeZsT7A1QrYJtBVODwPPaeCsokl4I3.vJRMGdW0  role network-admin
+username admin sshkey ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCn20T4Oqs7gqvgdTp2Yse9EOfyFnnflr6O8NClAkjM0SgjYs7HqUMWMLQeW0Trq+qqWPbNJb/+oYZu/8muVikDpTo12tmAeG5drE/rcfUgPPIA+RRuDbjNx8sk7OPUPBY10Nb55uhQjiZCj/ijti2cYWDHAjmR4a5h5YhZr84M8AL6HbNiReMyj1qQmqTAHLFm6cVYAWO2wtpzu03fGnb/Uofa7fUT6oDQ2lrYvFKRvCYqf+JTX5GAnAklVEcKXqkxhMpOaOuhsiIIzgkAgYpGOcimaO1udOhRPNfr1ZFQjpRoyIxt8w0JO1fcSAgk0le3N12pUGuRcXnEv1yEAOdIrYG5HSulRf/t1h4O/w4BxpFxRtVvmVRfycx+/T8ETMNDnS8L8P7ZY4um2/v64umLK3BCw2OJSGDK6XZ6KbUQ8CBWkIPTngR/R/ImJPob/GSdvNIpkECdsDAHFwvng+64CrWt+loK1HlrrkmsXjmaVh2FJ/UJ5wY9RKbJ5fO4xP4VP7adSVS1petf7X+YjxS7WFgk2naDb7RMk0seYKuBMXdS6KOr2KZXqkXw24iT9GeenKP9ALrH7VNmBMNP/5atdm9zrNTFZD8IMGy934LeFUqEQFLGQaT+BIruhRcJrGxvEES+2gcdgEFYZIhgLnEK2k1i+1A3JQZg68Gfg+BoNw== pjwelcher@gmail.com
+ip domain-lookup
+copp profile strict
+snmp-server user admin network-admin auth md5 0xbd24524a90d17b664b164ebdea356204 priv 0xbd24524a90d17b664b164ebdea356204 localizedkey
+rmon event 1 description FATAL(1) owner PMON@FATAL
+rmon event 2 description CRITICAL(2) owner PMON@CRITICAL
+rmon event 3 description ERROR(3) owner PMON@ERROR
+rmon event 4 description WARNING(4) owner PMON@WARNING
+rmon event 5 description INFORMATION(5) owner PMON@INFO
+
+fabric forwarding anycast-gateway-mac 1234.5678.9000
+ip pim rp-address 100.2.1.1 group-list 224.0.0.0/4
+ip pim ssm range 232.0.0.0/8
+vlan 1,10-12,20-22
+vlan 10
+  vn-segment 10000
+vlan 11
+  vn-segment 10011
+vlan 12
+  vn-segment 10012
+vlan 20
+  vn-segment 20000
+vlan 21
+  vn-segment 20021
+vlan 22
+  vn-segment 20022
+
+vrf context Tenant-1
+  vni 10000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto evpn
+vrf context Tenant-2
+  vni 20000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto evpn
+vrf context management
+
+interface Vlan1
+
+interface Vlan10
+  no shutdown
+  vrf member Tenant-1
+  ip forward
+
+interface Vlan11
+  no shutdown
+  vrf member Tenant-1
+  ip address 10.0.11.1/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan12
+  no shutdown
+  vrf member Tenant-1
+  ip address 10.0.12.1/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan20
+  no shutdown
+  vrf member Tenant-2
+  ip forward
+
+interface Vlan21
+  no shutdown
+  vrf member Tenant-2
+  ip address 10.0.21.1/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan22
+  no shutdown
+  vrf member Tenant-2
+  ip address 10.0.22.1/24
+  fabric forwarding mode anycast-gateway
+
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  source-interface loopback0
+  member vni 10000 associate-vrf
+  member vni 10011
+    mcast-group 239.0.0.11
+  member vni 10012
+    mcast-group 239.0.0.12
+  member vni 20000 associate-vrf
+  member vni 20021
+    mcast-group 239.0.0.21
+  member vni 20022
+    mcast-group 239.0.0.22
+
+interface Ethernet1/1
+  no switchport
+  ip address 10.0.0.24/24
+  no shutdown
+
+interface Ethernet1/2
+  switchport access vlan 11
+
+interface Ethernet1/3
+
+interface Ethernet1/4
+
+interface Ethernet1/5
+
+interface Ethernet1/6
+
+interface Ethernet1/7
+
+interface Ethernet1/8
+
+interface Ethernet1/9
+
+interface Ethernet1/10
+
+interface Ethernet1/11
+
+interface Ethernet1/12
+
+interface Ethernet1/13
+
+interface Ethernet1/14
+
+interface Ethernet1/15
+
+interface Ethernet1/16
+
+interface Ethernet1/17
+
+interface Ethernet1/18
+
+interface Ethernet1/19
+
+interface Ethernet1/20
+
+interface Ethernet1/21
+
+interface Ethernet1/22
+
+interface Ethernet1/23
+
+interface Ethernet1/24
+
+interface Ethernet1/25
+
+interface Ethernet1/26
+
+interface Ethernet1/27
+
+interface Ethernet1/28
+
+interface Ethernet1/29
+
+interface Ethernet1/30
+
+interface Ethernet1/31
+
+interface Ethernet1/32
+
+interface Ethernet1/33
+
+interface Ethernet1/34
+
+interface Ethernet1/35
+
+interface Ethernet1/36
+
+interface Ethernet1/37
+
+interface Ethernet1/38
+
+interface Ethernet1/39
+
+interface Ethernet1/40
+
+interface Ethernet1/41
+
+interface Ethernet1/42
+
+interface Ethernet1/43
+
+interface Ethernet1/44
+
+interface Ethernet1/45
+
+interface Ethernet1/46
+
+interface Ethernet1/47
+
+interface Ethernet1/48
+
+interface Ethernet1/49
+  no switchport
+  medium p2p
+  ip unnumbered loopback0
+  ip ospf network point-to-point
+  ip router ospf Underlay area 0.0.0.0
+  ip pim sparse-mode
+  no shutdown
+
+interface Ethernet1/50
+  no switchport
+  medium p2p
+  ip unnumbered loopback0
+  ip ospf network point-to-point
+  ip router ospf Underlay area 0.0.0.0
+  ip pim sparse-mode
+  no shutdown
+
+interface Ethernet1/51
+  no switchport
+  medium p2p
+  ip unnumbered loopback0
+  ip ospf network point-to-point
+  ip router ospf Underlay area 0.0.0.0
+  ip pim sparse-mode
+  no shutdown
+
+interface Ethernet1/52
+  no switchport
+  medium p2p
+  ip unnumbered loopback0
+  ip ospf network point-to-point
+  ip router ospf Underlay area 0.0.0.0
+  ip pim sparse-mode
+  no shutdown
+
+interface Ethernet1/53
+
+interface Ethernet1/54
+
+interface Ethernet1/55
+
+interface Ethernet1/56
+
+interface Ethernet1/57
+
+interface Ethernet1/58
+
+interface Ethernet1/59
+
+interface Ethernet1/60
+
+interface Ethernet1/61
+
+interface Ethernet1/62
+
+interface Ethernet1/63
+
+interface Ethernet1/64
+
+interface Ethernet1/65
+
+interface Ethernet1/66
+
+interface Ethernet1/67
+
+interface Ethernet1/68
+
+interface Ethernet1/69
+
+interface Ethernet1/70
+
+interface Ethernet1/71
+
+interface Ethernet1/72
+
+interface Ethernet1/73
+
+interface Ethernet1/74
+
+interface Ethernet1/75
+
+interface Ethernet1/76
+
+interface Ethernet1/77
+
+interface Ethernet1/78
+
+interface Ethernet1/79
+
+interface Ethernet1/80
+
+interface Ethernet1/81
+
+interface Ethernet1/82
+
+interface Ethernet1/83
+
+interface Ethernet1/84
+
+interface Ethernet1/85
+
+interface Ethernet1/86
+
+interface Ethernet1/87
+
+interface Ethernet1/88
+
+interface Ethernet1/89
+
+interface Ethernet1/90
+
+interface Ethernet1/91
+
+interface Ethernet1/92
+
+interface Ethernet1/93
+
+interface Ethernet1/94
+
+interface Ethernet1/95
+
+interface Ethernet1/96
+
+interface Ethernet1/97
+
+interface Ethernet1/98
+
+interface Ethernet1/99
+
+interface Ethernet1/100
+
+interface Ethernet1/101
+
+interface Ethernet1/102
+
+interface Ethernet1/103
+
+interface Ethernet1/104
+
+interface Ethernet1/105
+
+interface Ethernet1/106
+
+interface Ethernet1/107
+
+interface Ethernet1/108
+
+interface Ethernet1/109
+
+interface Ethernet1/110
+
+interface Ethernet1/111
+
+interface Ethernet1/112
+
+interface Ethernet1/113
+
+interface Ethernet1/114
+
+interface Ethernet1/115
+
+interface Ethernet1/116
+
+interface Ethernet1/117
+
+interface Ethernet1/118
+
+interface Ethernet1/119
+
+interface Ethernet1/120
+
+interface Ethernet1/121
+
+interface Ethernet1/122
+
+interface Ethernet1/123
+
+interface Ethernet1/124
+
+interface Ethernet1/125
+
+interface Ethernet1/126
+
+interface Ethernet1/127
+
+interface Ethernet1/128
+
+interface mgmt0
+  vrf member management
+  ip address 10.0.0.23/24
+
+interface loopback0
+  ip address 10.2.2.1/32
+  ip router ospf Underlay area 0.0.0.0
+
+interface loopback1
+  ip address 100.2.2.1/32
+  ip router ospf Underlay area 0.0.0.0
+line console
+line vty
+boot nxos bootflash:/nxos.9.2.3.bin 
+router ospf Underlay
+  router-id 10.2.2.1
+router bgp 65001
+  router-id 10.2.2.1
+  neighbor 10.2.1.1
+    remote-as 65001
+    update-source loopback0
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+  neighbor 10.2.1.2
+    remote-as 65001
+    update-source loopback0
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+  vrf Tenant-1
+    address-family ipv4 unicast
+      advertise l2vpn evpn
+  vrf Tenant-2
+    address-family ipv4 unicast
+      advertise l2vpn evpn
+evpn
+  vni 10011 l2
+    rd auto
+    route-target import auto
+    route-target export auto
+  vni 10012 l2
+    rd auto
+    route-target import auto
+    route-target export auto
+  vni 20021 l2
+    rd auto
+    route-target import auto
+    route-target export auto
+  vni 20022 l2
+    rd auto
+    route-target import auto
+    route-target export auto
+
+
+telemetry
+  destination-group 1
+    ip address 10.0.0.22 port 50001 protocol gRPC encoding GPB 
+  sensor-group 1
+    path sys/intf/phys-[eth1/1]/dbgIfIn depth unbounded
+    path sys/intf/phys-[eth1/1]/dbgIfOut depth unbounded
+  sensor-group 2
+    data-source NX-API
+    path "show interface eth1/1" depth 0
+  subscription 1
+    dst-grp 1
+    snsr-grp 1 sample-interval 5000
+    snsr-grp 2 sample-interval 15000
+
+mt-l1# 

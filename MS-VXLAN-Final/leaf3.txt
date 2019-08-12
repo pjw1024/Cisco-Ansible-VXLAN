@@ -1,0 +1,722 @@
+
+Leaf-3# show run
+
+!Command: show running-config
+!Running configuration last done at: Wed Jul 10 14:29:02 2019
+!Time: Wed Jul 10 15:14:12 2019
+
+version 9.2(3) Bios:version
+hostname Leaf-3
+vdc Leaf-3 id 1
+  limit-resource vlan minimum 16 maximum 4094
+  limit-resource vrf minimum 2 maximum 4096
+  limit-resource port-channel minimum 0 maximum 511
+  limit-resource u4route-mem minimum 248 maximum 248
+  limit-resource u6route-mem minimum 96 maximum 96
+  limit-resource m4route-mem minimum 58 maximum 58
+  limit-resource m6route-mem minimum 8 maximum 8
+
+feature nxapi
+feature tacacs+
+cfs eth distribute
+nv overlay evpn
+feature ospf
+feature bgp
+feature pim
+feature interface-vlan
+feature vn-segment-vlan-based
+feature lacp
+feature dhcp
+feature lldp
+feature nv overlay
+
+feature ngoam
+
+no password strength-check
+username admin password 5 $5$rSenqwLd$xh8UshBp0Btdv5hSlnntmoV7dye5p/za8k.PBmNzbgC  role network-admin
+ip domain-lookup
+copp profile strict
+configure profile Auto_Net_VNI30000_VLAN300
+  vlan 300
+    vn-segment 30000
+  interface Vlan300
+    vrf member myvrf_50000
+    ip address 10.10.11.1/24 tag 12345
+    fabric forwarding mode anycast-gateway
+    no shutdown
+  interface nve1
+    member vni 30000
+      mcast-group 239.1.1.0
+  evpn
+    vni 30000 l2
+      rd auto
+      route-target import auto
+      route-target export auto
+configure terminal
+configure profile myvrf_50000
+  vlan 2000
+    vn-segment 50000
+  interface Vlan2000
+    vrf member myvrf_50000
+    ip forward
+    ipv6 forward
+    no ip redirects
+    no ipv6 redirects
+    mtu 9216
+    no shutdown
+  vrf context myvrf_50000
+    vni 50000
+    rd auto
+    address-family ipv4 unicast
+      route-target both auto
+      route-target both auto evpn
+    address-family ipv6 unicast
+      route-target both auto
+      route-target both auto evpn
+  router bgp 65002
+    vrf myvrf_50000
+      address-family ipv4 unicast
+        advertise l2vpn evpn
+        redistribute direct route-map fabric-rmap-redist-subnet
+        maximum-paths ibgp 2
+      address-family ipv6 unicast
+        advertise l2vpn evpn
+        redistribute direct route-map fabric-rmap-redist-subnet
+        maximum-paths ibgp 2
+  interface nve1
+    member vni 50000 associate-vrf
+configure terminal
+snmp-server user admin network-admin auth md5 0xaf0408b4a69d9bd5e4df2d6d013d0767 priv 0xaf0408b4a69d9bd5e4df2d6d013d0767 localizedkey
+snmp-server host 198.18.134.200 traps version 2c public udp-port 2162
+rmon event 1 description FATAL(1) owner PMON@FATAL
+rmon event 2 description CRITICAL(2) owner PMON@CRITICAL
+rmon event 3 description ERROR(3) owner PMON@ERROR
+rmon event 4 description WARNING(4) owner PMON@WARNING
+rmon event 5 description INFORMATION(5) owner PMON@INFO
+
+fabric forwarding anycast-gateway-mac 2020.0000.00aa
+ipv6 switch-packets lla
+ip pim rp-address 20.254.254.1 group-list 239.1.1.0/25
+ip pim ssm range 232.0.0.0/8
+vlan 1,300,2000
+vlan 300
+  vn-segment 30000
+vlan 2000
+  vn-segment 50000
+
+route-map fabric-rmap-redist-subnet permit 10
+  match tag 12345
+ip dhcp snooping
+service dhcp
+ip dhcp relay
+ip dhcp relay information option
+ip dhcp relay information option vpn
+ipv6 dhcp relay
+vrf context management
+vrf context myvrf_50000
+  vni 50000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+  address-family ipv6 unicast
+    route-target both auto
+    route-target both auto evpn
+
+nxapi http port 80
+
+
+interface Vlan1
+
+interface Vlan300
+  no shutdown
+  vrf member myvrf_50000
+  ip address 10.10.11.1/24 tag 12345
+  fabric forwarding mode anycast-gateway
+
+interface Vlan2000
+  no shutdown
+  mtu 9216
+  vrf member myvrf_50000
+  no ip redirects
+  ip forward
+  ipv6 forward
+  no ipv6 redirects
+
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  source-interface loopback1
+  member vni 30000
+    mcast-group 239.1.1.0
+  member vni 50000 associate-vrf
+
+interface Ethernet1/1
+  description connected-to-Spine-2-Ethernet1/3
+  no switchport
+  mtu 9216
+  ip address 20.4.0.10/30
+  ip ospf network point-to-point
+  ip router ospf UNDERLAY area 0.0.0.0
+  ip pim sparse-mode
+  no shutdown
+
+interface Ethernet1/2
+  switchport access vlan 300
+  spanning-tree port type edge
+  spanning-tree bpduguard enable
+  mtu 9216
+
+interface Ethernet1/3
+  no switchport
+  no shutdown
+
+interface Ethernet1/4
+  no switchport
+  no shutdown
+
+interface Ethernet1/5
+  no switchport
+  no shutdown
+
+interface Ethernet1/6
+  no switchport
+  no shutdown
+
+interface Ethernet1/7
+  no switchport
+  no shutdown
+
+interface Ethernet1/8
+  no switchport
+  no shutdown
+
+interface Ethernet1/9
+  no switchport
+  no shutdown
+
+interface Ethernet1/10
+  no switchport
+  no shutdown
+
+interface Ethernet1/11
+  no switchport
+  no shutdown
+
+interface Ethernet1/12
+  no switchport
+  no shutdown
+
+interface Ethernet1/13
+  no switchport
+  no shutdown
+
+interface Ethernet1/14
+  no switchport
+  no shutdown
+
+interface Ethernet1/15
+  no switchport
+  no shutdown
+
+interface Ethernet1/16
+  no switchport
+  no shutdown
+
+interface Ethernet1/17
+  no switchport
+  no shutdown
+
+interface Ethernet1/18
+  no switchport
+  no shutdown
+
+interface Ethernet1/19
+  no switchport
+  no shutdown
+
+interface Ethernet1/20
+  no switchport
+  no shutdown
+
+interface Ethernet1/21
+  no switchport
+  no shutdown
+
+interface Ethernet1/22
+  no switchport
+  no shutdown
+
+interface Ethernet1/23
+  no switchport
+  no shutdown
+
+interface Ethernet1/24
+  no switchport
+  no shutdown
+
+interface Ethernet1/25
+  no switchport
+  no shutdown
+
+interface Ethernet1/26
+  no switchport
+  no shutdown
+
+interface Ethernet1/27
+  no switchport
+  no shutdown
+
+interface Ethernet1/28
+  no switchport
+  no shutdown
+
+interface Ethernet1/29
+  no switchport
+  no shutdown
+
+interface Ethernet1/30
+  no switchport
+  no shutdown
+
+interface Ethernet1/31
+  no switchport
+  no shutdown
+
+interface Ethernet1/32
+  no switchport
+  no shutdown
+
+interface Ethernet1/33
+  no switchport
+  no shutdown
+
+interface Ethernet1/34
+  no switchport
+  no shutdown
+
+interface Ethernet1/35
+  no switchport
+  no shutdown
+
+interface Ethernet1/36
+  no switchport
+  no shutdown
+
+interface Ethernet1/37
+  no switchport
+  no shutdown
+
+interface Ethernet1/38
+  no switchport
+  no shutdown
+
+interface Ethernet1/39
+  no switchport
+  no shutdown
+
+interface Ethernet1/40
+  no switchport
+  no shutdown
+
+interface Ethernet1/41
+  no switchport
+  no shutdown
+
+interface Ethernet1/42
+  no switchport
+  no shutdown
+
+interface Ethernet1/43
+  no switchport
+  no shutdown
+
+interface Ethernet1/44
+  no switchport
+  no shutdown
+
+interface Ethernet1/45
+  no switchport
+  no shutdown
+
+interface Ethernet1/46
+  no switchport
+  no shutdown
+
+interface Ethernet1/47
+  no switchport
+  no shutdown
+
+interface Ethernet1/48
+  no switchport
+  no shutdown
+
+interface Ethernet1/49
+  no switchport
+  no shutdown
+
+interface Ethernet1/50
+  no switchport
+  no shutdown
+
+interface Ethernet1/51
+  no switchport
+  no shutdown
+
+interface Ethernet1/52
+  no switchport
+  no shutdown
+
+interface Ethernet1/53
+  no switchport
+  no shutdown
+
+interface Ethernet1/54
+  no switchport
+  no shutdown
+
+interface Ethernet1/55
+  no switchport
+  no shutdown
+
+interface Ethernet1/56
+  no switchport
+  no shutdown
+
+interface Ethernet1/57
+  no switchport
+  no shutdown
+
+interface Ethernet1/58
+  no switchport
+  no shutdown
+
+interface Ethernet1/59
+  no switchport
+  no shutdown
+
+interface Ethernet1/60
+  no switchport
+  no shutdown
+
+interface Ethernet1/61
+  no switchport
+  no shutdown
+
+interface Ethernet1/62
+  no switchport
+  no shutdown
+
+interface Ethernet1/63
+  no switchport
+  no shutdown
+
+interface Ethernet1/64
+  no switchport
+  no shutdown
+
+interface Ethernet1/65
+  no switchport
+  no shutdown
+
+interface Ethernet1/66
+  no switchport
+  no shutdown
+
+interface Ethernet1/67
+  no switchport
+  no shutdown
+
+interface Ethernet1/68
+  no switchport
+  no shutdown
+
+interface Ethernet1/69
+  no switchport
+  no shutdown
+
+interface Ethernet1/70
+  no switchport
+  no shutdown
+
+interface Ethernet1/71
+  no switchport
+  no shutdown
+
+interface Ethernet1/72
+  no switchport
+  no shutdown
+
+interface Ethernet1/73
+  no switchport
+  no shutdown
+
+interface Ethernet1/74
+  no switchport
+  no shutdown
+
+interface Ethernet1/75
+  no switchport
+  no shutdown
+
+interface Ethernet1/76
+  no switchport
+  no shutdown
+
+interface Ethernet1/77
+  no switchport
+  no shutdown
+
+interface Ethernet1/78
+  no switchport
+  no shutdown
+
+interface Ethernet1/79
+  no switchport
+  no shutdown
+
+interface Ethernet1/80
+  no switchport
+  no shutdown
+
+interface Ethernet1/81
+  no switchport
+  no shutdown
+
+interface Ethernet1/82
+  no switchport
+  no shutdown
+
+interface Ethernet1/83
+  no switchport
+  no shutdown
+
+interface Ethernet1/84
+  no switchport
+  no shutdown
+
+interface Ethernet1/85
+  no switchport
+  no shutdown
+
+interface Ethernet1/86
+  no switchport
+  no shutdown
+
+interface Ethernet1/87
+  no switchport
+  no shutdown
+
+interface Ethernet1/88
+  no switchport
+  no shutdown
+
+interface Ethernet1/89
+  no switchport
+  no shutdown
+
+interface Ethernet1/90
+  no switchport
+  no shutdown
+
+interface Ethernet1/91
+  no switchport
+  no shutdown
+
+interface Ethernet1/92
+  no switchport
+  no shutdown
+
+interface Ethernet1/93
+  no switchport
+  no shutdown
+
+interface Ethernet1/94
+  no switchport
+  no shutdown
+
+interface Ethernet1/95
+  no switchport
+  no shutdown
+
+interface Ethernet1/96
+  no switchport
+  no shutdown
+
+interface Ethernet1/97
+  no switchport
+  no shutdown
+
+interface Ethernet1/98
+  no switchport
+  no shutdown
+
+interface Ethernet1/99
+  no switchport
+  no shutdown
+
+interface Ethernet1/100
+  no switchport
+  no shutdown
+
+interface Ethernet1/101
+  no switchport
+  no shutdown
+
+interface Ethernet1/102
+  no switchport
+  no shutdown
+
+interface Ethernet1/103
+  no switchport
+  no shutdown
+
+interface Ethernet1/104
+  no switchport
+  no shutdown
+
+interface Ethernet1/105
+  no switchport
+  no shutdown
+
+interface Ethernet1/106
+  no switchport
+  no shutdown
+
+interface Ethernet1/107
+  no switchport
+  no shutdown
+
+interface Ethernet1/108
+  no switchport
+  no shutdown
+
+interface Ethernet1/109
+  no switchport
+  no shutdown
+
+interface Ethernet1/110
+  no switchport
+  no shutdown
+
+interface Ethernet1/111
+  no switchport
+  no shutdown
+
+interface Ethernet1/112
+  no switchport
+  no shutdown
+
+interface Ethernet1/113
+  no switchport
+  no shutdown
+
+interface Ethernet1/114
+  no switchport
+  no shutdown
+
+interface Ethernet1/115
+  no switchport
+  no shutdown
+
+interface Ethernet1/116
+  no switchport
+  no shutdown
+
+interface Ethernet1/117
+  no switchport
+  no shutdown
+
+interface Ethernet1/118
+  no switchport
+  no shutdown
+
+interface Ethernet1/119
+  no switchport
+  no shutdown
+
+interface Ethernet1/120
+  no switchport
+  no shutdown
+
+interface Ethernet1/121
+  no switchport
+  no shutdown
+
+interface Ethernet1/122
+  no switchport
+  no shutdown
+
+interface Ethernet1/123
+  no switchport
+  no shutdown
+
+interface Ethernet1/124
+  no switchport
+  no shutdown
+
+interface Ethernet1/125
+  no switchport
+  no shutdown
+
+interface Ethernet1/126
+  no switchport
+  no shutdown
+
+interface Ethernet1/127
+  no switchport
+  no shutdown
+
+interface Ethernet1/128
+  no switchport
+  no shutdown
+
+interface mgmt0
+  no cdp enable
+  vrf member management
+  ip address 198.18.4.201/24
+
+interface loopback0
+  description Routing loopback interface
+  ip address 20.2.0.3/32
+  ip router ospf UNDERLAY area 0.0.0.0
+  ip pim sparse-mode
+
+interface loopback1
+  description VTEP loopback interface
+  ip address 20.3.0.3/32
+  ip router ospf UNDERLAY area 0.0.0.0
+  ip pim sparse-mode
+line console
+line vty
+boot nxos bootflash:/nxos.9.2.3.bin
+router ospf UNDERLAY
+  router-id 20.2.0.3
+router bgp 65002
+  router-id 20.2.0.3
+  neighbor 20.2.0.4
+    remote-as 65002
+    update-source loopback0
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+  vrf myvrf_50000
+    address-family ipv4 unicast
+      advertise l2vpn evpn
+      redistribute direct route-map fabric-rmap-redist-subnet
+      maximum-paths ibgp 2
+    address-family ipv6 unicast
+      advertise l2vpn evpn
+      redistribute direct route-map fabric-rmap-redist-subnet
+      maximum-paths ibgp 2
+evpn
+  vni 30000 l2
+    rd auto
+    route-target import auto
+    route-target export auto
+
+apply profile Auto_Net_VNI30000_VLAN300
+apply profile myvrf_50000
+ngoam install acl
+
+Leaf-3#

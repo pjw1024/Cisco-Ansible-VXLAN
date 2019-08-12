@@ -1,0 +1,25 @@
+[all:vars]
+ansible_connection=network_cli
+ansible_network_os=nxos
+user=something
+# This makes the provider block happy, is not actually used
+
+[leaf]
+mt-l1
+
+#[spine]
+#mt-s2
+
+# Originals:
+#[leaf]
+#mt-l1
+#mt-l2
+#mt-l3
+#mt-l4
+#
+#[spine]
+#mt-s1
+#mt-s2
+#
+#ansible_connection = local
+#pwd = cisco.123

@@ -1,0 +1,21 @@
+---
+
+
+#- hosts: spine
+#  roles:
+#    - role: spine
+
+- hosts: leaf
+  gather_facts: no
+  remote_user: admin
+  roles:
+    - role: leaf
+
+- hosts: all
+  gather_facts: no
+  remote_user: admin
+
+#  tasks:
+#    - name: save config
+#      nxos_save_config: host={{ inventory_hostname }}
+      

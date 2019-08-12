@@ -1,0 +1,62 @@
+
+    - name: CONFIGURE TENANT VRFs UNDER BGP PROCESS
+      nxos_bgp_af:
+        asn: "{{ asn }}"
+        vrf: "{{ item.vrf }}"
+        afi: "{{ item.afi }}"
+        safi: "{{ item.safi }}"
+        advertise_l2vpn_evpn: "true"
+        provider: "{{ nxos_provider }}"
+      with_items: "{{ vrfs2 }}"
+      # PJW edit
+
+    - name: CONFIGURE ANYCAST GW MAC
+      nxos_config:
+        lines: fabric forwarding anycast-gateway-mac 1234.5678.9000
+        provider: "{{ nxos_provider  }}"
+      with_items: "{{ l3_interfaces }}"        
+
+    - name: CONFIGURE SVIs THAT ARE MAPPED TO VNIs
+      nxos_interface:
+        interface: "vlan{{ item.vlan_id }}"
+        admin_state: up
+        provider: "{{ nxos_provider }}"
+      with_items: 
+      - "{{ vlans_l2vni }}"
+      - "{{ vlans_l3vni }}"
+
+    - name: ASSOCIATE INTERFACES TO TENANT VRF
+      nxos_vrf_interface:
+        vrf: "{{ item.vrf }}"
+        interface: "vlan{{ item.vlan_id }}"
+        provider: "{{ nxos_provider }}"
+      with_items: 
+      - "{{ vlans_l2vni }}"
+      - "{{ vlans_l3vni }}"
+
+    - name: ENABLE ANYCAST GW UNDER L2VNI SVI
+      nxos_interface:
+        interface: "vlan{{ item.vlan_id }}"
+        fabric_forwarding_anycast_gateway: true
+        provider: "{{ nxos_provider }}"
+      with_items: "{{ vlans_l2vni }}"
+
+    - name: CONFIGURE IP FORWARD UNDER L3VNI SVI
+      nxos_interface:
+        interface: "vlan{{ item.vlan_id }}"
+        ip_forward: enable
+        provider: "{{ nxos_provider }}"
+      with_items: "{{ vlans_l3vni }}"
+
+    - name: CONFIGURE IP ADDRESS TO L2VNI SVI
+      nxos_ip_interface:
+        interface: "vlan{{ item.vlan_id }}"
+        addr: "{{ item.addr }}"
+        mask: "{{ item.mask }}"
+        provider: "{{ nxos_provider }}"
+      with_items: "{{ vlans_l2vni }}"
+
+    - name: SAVE RUN CONFIG TO STARTUP CONFIG
+      nxos_config:
+        save: always
+        provider: "{{ nxos_provider }}"
