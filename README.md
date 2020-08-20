@@ -16,5 +16,6 @@ The sample_results folder contains a sample leaf and a sample spine that the tem
 configurations should be very similar.)
 
 For comparison / validation, the MS-VXLAN-Final folder contains copies of configurations built in dCloud 
-by DCNM for VXLAN EVPN Multi-site. 
+by DCNM for VXLAN EVPN Multi-site. The dCloud project goal was rather simplistic (hey, demo!) so the configs
+are rather limited as to features. 
 
